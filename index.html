@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexora Labs — Digital Engineering Studio</title>
+<title>Cod3v — Digital Engineering Studio</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -723,193 +723,10 @@
     animation: fadeUp 0.4s ease 0.9s forwards;
   }
 
-  /* ══════════════════════════════════════════
-     FEATURE 3 — AI CHAT WIDGET
-  ══════════════════════════════════════════ */
-  #ai-chat-btn {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    z-index: 1000;
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: none;
-    cursor: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 0 0 rgba(102,156,53,0.4);
-    animation: chatPulse 2.5s ease infinite 3s;
-    transition: background 0.3s, transform 0.2s;
+  /* AI chat removed */
+  #ai-chat-btn-placeholder {
+  display: none;
   }
-  #ai-chat-btn:hover { background: var(--accent2); transform: scale(1.08); }
-  #ai-chat-btn svg { width: 22px; height: 22px; fill: var(--bg); transition: opacity 0.2s; }
-  #ai-chat-btn .close-icon { display: none; }
-  #ai-chat-btn.open .chat-icon { display: none; }
-  #ai-chat-btn.open .close-icon { display: block; }
-  @keyframes chatPulse {
-    0%  { box-shadow: 0 0 0 0 rgba(102,156,53,0.5); }
-    70% { box-shadow: 0 0 0 14px rgba(102,156,53,0); }
-    100%{ box-shadow: 0 0 0 0 rgba(102,156,53,0); }
-  }
-
-  #ai-chat-panel {
-    position: fixed;
-    bottom: 5.5rem;
-    right: 2rem;
-    z-index: 999;
-    width: 360px;
-    max-width: calc(100vw - 2rem);
-    background: rgba(8,8,18,0.97);
-    border: 1px solid rgba(102,156,53,0.25);
-    backdrop-filter: blur(20px);
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-    transform: translateY(20px) scale(0.97);
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    max-height: 520px;
-  }
-  #ai-chat-panel.open {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-    pointer-events: all;
-  }
-  .chat-header {
-    padding: 1rem 1.2rem;
-    border-bottom: 1px solid rgba(102,156,53,0.15);
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    flex-shrink: 0;
-  }
-  .chat-header-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: chatPulse 2s ease infinite;
-    flex-shrink: 0;
-  }
-  .chat-header-info { flex: 1; }
-  .chat-header-name {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    color: var(--accent2);
-    text-transform: uppercase;
-  }
-  .chat-header-status {
-    font-size: 0.65rem;
-    color: var(--fg-dim);
-    margin-top: 0.1rem;
-  }
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem 1.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(102,156,53,0.2) transparent;
-  }
-  .chat-messages::-webkit-scrollbar { width: 3px; }
-  .chat-messages::-webkit-scrollbar-thumb { background: rgba(102,156,53,0.3); border-radius: 2px; }
-  .chat-msg {
-    max-width: 88%;
-    font-size: 0.82rem;
-    line-height: 1.6;
-    padding: 0.65rem 0.9rem;
-    border-radius: 2px;
-    animation: msgSlide 0.25s ease;
-  }
-  @keyframes msgSlide { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
-  .chat-msg.ai {
-    background: rgba(102,156,53,0.08);
-    border: 1px solid rgba(102,156,53,0.15);
-    color: var(--fg);
-    align-self: flex-start;
-    border-radius: 2px 12px 12px 2px;
-  }
-  .chat-msg.user {
-    background: rgba(217,235,55,0.08);
-    border: 1px solid rgba(217,235,55,0.15);
-    color: var(--fg);
-    align-self: flex-end;
-    border-radius: 12px 2px 2px 12px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-  }
-  .chat-msg.typing {
-    background: rgba(102,156,53,0.06);
-    border: 1px solid rgba(102,156,53,0.1);
-    align-self: flex-start;
-    padding: 0.8rem 1.1rem;
-  }
-  .typing-dots { display: flex; gap: 4px; align-items: center; }
-  .typing-dots span {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: dot 1.2s ease infinite;
-  }
-  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes dot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
-  .chat-input-wrap {
-    display: flex;
-    gap: 0;
-    border-top: 1px solid rgba(102,156,53,0.15);
-    flex-shrink: 0;
-  }
-  #chat-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    padding: 0.9rem 1rem;
-    color: var(--fg);
-    font-family: var(--font-body);
-    font-size: 0.82rem;
-    resize: none;
-  }
-  #chat-input::placeholder { color: var(--fg-dim); }
-  #chat-send {
-    background: transparent;
-    border: none;
-    border-left: 1px solid rgba(102,156,53,0.15);
-    padding: 0 1rem;
-    cursor: none;
-    color: var(--accent);
-    transition: color 0.2s, background 0.2s;
-  }
-  #chat-send:hover { color: var(--accent2); background: rgba(102,156,53,0.06); }
-  #chat-send svg { width: 16px; height: 16px; fill: currentColor; }
-  .chat-suggestions {
-    display: flex;
-    gap: 0.4rem;
-    padding: 0.5rem 1.2rem 0.8rem;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-    border-top: 1px solid rgba(102,156,53,0.08);
-  }
-  .chat-chip {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    color: var(--fg-dim);
-    border: 1px solid rgba(102,156,53,0.2);
-    padding: 0.3rem 0.65rem;
-    border-radius: 100px;
-    cursor: none;
-    transition: color 0.2s, border-color 0.2s;
-    white-space: nowrap;
-    background: transparent;
-  }
-  .chat-chip:hover { color: var(--accent2); border-color: rgba(217,235,55,0.4); }
 </style>
 </head>
 <body>
@@ -920,7 +737,7 @@
 
 <!-- Loading Screen -->
 <div id="loader">
-  <div class="loader-logo">NEXORA<span>.</span></div>
+  <div class="loader-logo">COD3V<span>.</span></div>
   <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
   <div class="loader-sub">Digital Engineering Studio</div>
   <div class="loader-counter" id="loader-counter">000</div>
@@ -931,7 +748,7 @@
 <div id="noise"></div>
 
 <nav>
-  <a class="nav-logo" href="#" onclick="scrollToSection(0);return false;">NEXORA<span>.</span></a>
+  <a class="nav-logo" href="#" onclick="scrollToSection(0);return false;">COD3V<span>.</span></a>
   <ul class="nav-links">
     <li><a onclick="scrollToSection(1)">Services</a></li>
     <li><a onclick="scrollToSection(2)">About</a></li>
@@ -948,8 +765,7 @@
   <div class="section" id="hero" data-idx="0">
     <div class="hero-eyebrow">Digital Engineering Studio · Est. 2024</div>
     <div class="hero-title">
-      NEXORA
-      <span>LABS</span>
+      COD3V
     </div>
     <p class="hero-sub">We build digital <em style="font-style:normal;color:var(--accent2)">systems</em> that scale — for ambitious companies and forward-thinking teams.</p>
     <div class="hero-ctas">
@@ -995,7 +811,7 @@
       <div class="section-label">002 — About</div>
       <h2 class="about-title">ENGINEERS<br>WHO THINK<br>IN SYSTEMS.</h2>
       <p class="about-body">
-        Nexora Labs is a boutique digital engineering studio. We partner with growth-stage startups and forward-thinking enterprises to design and build the products that define their next chapter.
+        Cod3v is a boutique digital engineering studio. We partner with growth-stage startups and forward-thinking enterprises to design and build the products that define their next chapter.
       </p>
       <p class="about-body">
         We care about craft — every interaction, every millisecond, every API response. Based in Accra, working worldwide.
@@ -1011,7 +827,7 @@
       <div class="work-grid">
 
         <div class="work-item" onclick="window.open('https://www.efuab.com','_blank','noopener')">
-          <div class="work-item-thumb" style="background-image:url('images/efuab-thumb.png')"></div>
+          <div class="work-item-thumb" style="background-image:url('https://image.thum.io/get/width/800/crop/600/noanimate/https://www.efuab.com')"></div>
           <div class="work-item-overlay"></div>
           <div class="work-hover"><div class="work-hover-label">Visit Site →</div></div>
           <div class="work-item-num">001</div>
@@ -1020,7 +836,7 @@
         </div>
 
         <div class="work-item" onclick="window.open('https://www.brandmotionstudios.com','_blank','noopener')">
-          <div class="work-item-thumb" style="background-image:url('images/brandmotion-thumb.png')"></div>
+          <div class="work-item-thumb" style="background-image:url('https://image.thum.io/get/width/800/crop/600/noanimate/https://www.brandmotionstudios.com')"></div>
           <div class="work-item-overlay"></div>
           <div class="work-hover"><div class="work-hover-label">Visit Site →</div></div>
           <div class="work-item-num">002</div>
@@ -1041,15 +857,7 @@
       <p class="contact-body">Available for projects, collaborations, and technical partnerships. Response within 24 hours.</p>
 
       <div class="contact-cta">
-        <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-          <button class="btn filled" onclick="openContactForm()">Start a Project →</button>
-          <a class="btn" href="mailto:hello@nexoralabs.io">hello@nexoralabs.io</a>
-        </div>
-        <div class="contact-meta">
-          <div class="contact-meta-item"><span>◉</span> Open for Q3 2025</div>
-          <div class="contact-meta-item"><span>◎</span> Based in Accra</div>
-          <div class="contact-meta-item"><span>◈</span> Working worldwide</div>
-        </div>
+        <button class="btn filled" onclick="openContactForm()">Start a Project →</button>
       </div>
     </div>
   </div>
@@ -1082,37 +890,6 @@
       &gt; request submitted successfully_<br>
       <span style="color:var(--fg-dim);font-size:0.75em">We'll be in touch within 24 hours.</span>
     </div>
-  </div>
-</div>
-
-<!-- AI Chat Widget -->
-<button id="ai-chat-btn" onclick="toggleChat()" aria-label="Open AI assistant">
-  <svg class="chat-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.06L2 22l4.94-1.37A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-  <svg class="close-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-</button>
-
-<div id="ai-chat-panel">
-  <div class="chat-header">
-    <div class="chat-header-dot"></div>
-    <div class="chat-header-info">
-      <div class="chat-header-name">Nexora AI</div>
-      <div class="chat-header-status">Ask me anything about our work</div>
-    </div>
-  </div>
-  <div class="chat-messages" id="chat-messages">
-    <div class="chat-msg ai">Hey 👋 I'm Nexora's AI assistant. Ask me about our services, past work, pricing, or anything else.</div>
-  </div>
-  <div class="chat-suggestions" id="chat-suggestions">
-    <button class="chat-chip" onclick="sendChip(this)">What do you build?</button>
-    <button class="chat-chip" onclick="sendChip(this)">Pricing?</button>
-    <button class="chat-chip" onclick="sendChip(this)">Past projects</button>
-    <button class="chat-chip" onclick="sendChip(this)">How to start?</button>
-  </div>
-  <div class="chat-input-wrap">
-    <textarea id="chat-input" rows="1" placeholder="Message Nexora AI…" onkeydown="chatKeydown(event)"></textarea>
-    <button id="chat-send" onclick="sendChatMessage()" aria-label="Send">
-      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
-    </button>
   </div>
 </div>
 
@@ -1165,7 +942,7 @@ const CODE_TOKENS = [
   { text: 'git commit',      color: '#aaffcc', size: 1.4 },
   { text: 'useState()',      color: '#d9eb37', size: 1.5 },
   { text: 'z-index: 9999',   color: '#7a7a98', size: 1.3 },
-  { text: 'nexora.build()',  color: '#d9eb37', size: 1.6 },
+  { text: 'cod3v.build()',  color: '#d9eb37', size: 1.6 },
 ];
 
 const TOKEN_POSITIONS = [
@@ -1347,8 +1124,19 @@ document.addEventListener('keydown', (e) => {
 });
 function handleContactSubmit(e) {
   e.preventDefault();
-  document.getElementById('contact-form').style.display = 'none';
+  const form = document.getElementById('contact-form');
+  const name    = form.querySelector('input[type="text"]').value.trim();
+  const email   = form.querySelector('input[type="email"]').value.trim();
+  const project = form.querySelector('textarea').value.trim();
+
+  const msg = `Hi Cod3v! 👋\n\n*Name:* ${name}\n*Email:* ${email}\n\n*Project:*\n${project}`;
+  const encoded = encodeURIComponent(msg);
+  const waUrl = `https://wa.me/233541479680?text=${encoded}`;
+
+  // Show success state then redirect
+  form.style.display = 'none';
   document.getElementById('contact-success').classList.add('show');
+  setTimeout(() => { window.open(waUrl, '_blank', 'noopener'); }, 800);
 }
 
 // ─── FEATURE 1: Custom Cursor (Coding Theme) ──────────────────────────────
@@ -1367,7 +1155,7 @@ document.addEventListener('mousedown', () => document.body.classList.add('cursor
 document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
 
 // Hover state on interactive elements
-const hoverTargets = 'a, button, [onclick], .service-card, .work-item, .prog-dot, .chat-chip, #chat-send, #ai-chat-btn, .btn, .nav-links a, input, textarea';
+const hoverTargets = 'a, button, [onclick], .service-card, .work-item, .prog-dot, .btn, .nav-links a, input, textarea';
 document.querySelectorAll(hoverTargets).forEach(el => {
   el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
   el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
@@ -1398,102 +1186,6 @@ document.querySelectorAll(hoverTargets).forEach(el => {
   }, 2400);
 })();
 
-// ─── FEATURE 3: AI Chat Widget ────────────────────────────────────────────
-const NEXORA_CONTEXT = `You are the AI assistant for Nexora Labs, a boutique digital engineering studio based in Accra, Ghana.
-
-About Nexora Labs:
-- We build digital systems that scale for ambitious companies and forward-thinking teams
-- Services: Web Development, UI/UX Design, Automation Systems, Performance Ops
-- 40+ projects shipped, 4 years of studio experience, 98% client retention
-- Based in Accra, working worldwide
-- Currently open for Q3 2025 projects
-- Contact: hello@nexoralabs.io
-- Past clients include Efuab (beauty studio) and Brand Motion Studios (film studio)
-
-Pricing: Project-based. Web projects typically start from $3,000. Custom scopes on request.
-Typical timeline: 4–12 weeks depending on scope.
-
-Be helpful, concise, and on-brand: confident, technical, no fluff. Use short paragraphs. Don't use bullet lists unless really needed.`;
-
-const chatHistory = [];
-let chatOpen = false;
-let isSending = false;
-
-function toggleChat() {
-  chatOpen = !chatOpen;
-  document.getElementById('ai-chat-btn').classList.toggle('open', chatOpen);
-  document.getElementById('ai-chat-panel').classList.toggle('open', chatOpen);
-  if (chatOpen) setTimeout(() => document.getElementById('chat-input').focus(), 350);
-}
-
-function chatKeydown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
-}
-
-function sendChip(btn) {
-  document.getElementById('chat-suggestions').style.display = 'none';
-  document.getElementById('chat-input').value = btn.textContent;
-  sendChatMessage();
-}
-
-async function sendChatMessage() {
-  if (isSending) return;
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  isSending = true;
-
-  appendMsg('user', text);
-  chatHistory.push({ role: 'user', content: text });
-
-  const typingEl = appendTyping();
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: NEXORA_CONTEXT,
-        messages: chatHistory
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.find(b => b.type === 'text')?.text || 'Sorry, I couldn\'t get a response. Try again!';
-    typingEl.remove();
-    appendMsg('ai', reply);
-    chatHistory.push({ role: 'assistant', content: reply });
-  } catch {
-    typingEl.remove();
-    appendMsg('ai', 'Connection issue — please try again in a moment.');
-  }
-  isSending = false;
-}
-
-function appendMsg(role, text) {
-  const msgs = document.getElementById('chat-messages');
-  const el = document.createElement('div');
-  el.className = 'chat-msg ' + role;
-  el.textContent = text;
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-  // Re-attach hover for cursor
-  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-  return el;
-}
-
-function appendTyping() {
-  const msgs = document.getElementById('chat-messages');
-  const el = document.createElement('div');
-  el.className = 'chat-msg typing';
-  el.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-  return el;
-}
 </script>
 </body>
 </html>
