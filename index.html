@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexora Labs — Digital Engineering Studio</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&family=VT323&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<style>
+  :root {
+    --bg: #06060e;
+    --fg: #d8d8ec;
+    --fg-dim: #7a7a98;
+    --accent: #669c35;
+    --accent2: #d9eb37;
+    --font-display: 'VT323', monospace;
+    --font-body: 'JetBrains Mono', monospace;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: auto; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── Canvas ── */
+  #canvas-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+  #canvas-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 80% at 50% 50%, rgba(6,6,14,0.25) 0%, rgba(6,6,14,0.65) 100%),
+      linear-gradient(to bottom, rgba(6,6,14,0.5) 0%, rgba(6,6,14,0.3) 20%, rgba(6,6,14,0.3) 80%, rgba(6,6,14,0.65) 100%);
+  }
+  #scroll-space {
+    height: 600vh;
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 3rem;
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent2); }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    text-decoration: none;
+    transition: color 0.3s;
+    pointer-events: all;
+    cursor: pointer;
+  }
+  .nav-links a:hover { color: var(--accent2); }
+
+  /* ── Sections overlay ── */
+  #sections {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .section {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 3rem;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    pointer-events: none;
+  }
+  .section.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── Hero ── */
+  #hero {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-bottom: 5rem;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 15vw, 14rem);
+    line-height: 0.88;
+    letter-spacing: 0.02em;
+    color: var(--fg);
+  }
+  .hero-title span {
+    display: block;
+    -webkit-text-stroke: 1.5px var(--fg);
+    color: transparent;
+  }
+  .hero-title em {
+    font-style: normal;
+    color: var(--accent2);
+  }
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--fg-dim);
+    margin-top: 1.8rem;
+    max-width: 30rem;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+  .hero-ctas {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    right: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    animation: blink 2s ease infinite;
+  }
+  .scroll-hint::before {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--fg-dim);
+    display: block;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── Services ── */
+  #services { flex-direction: column; justify-content: center; align-items: flex-start; }
+  .services-inner { max-width: 900px; width: 100%; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.8rem;
+  }
+  .services-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 0.9;
+    margin-bottom: 3rem;
+    letter-spacing: 0.02em;
+  }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    max-width: 900px;
+  }
+  .service-card {
+    background: rgba(102,156,53,0.04);
+    border: 1px solid rgba(102,156,53,0.12);
+    padding: 1.8rem;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: default;
+  }
+  .service-card:hover {
+    border-color: rgba(102,156,53,0.4);
+    background: rgba(102,156,53,0.07);
+  }
+  .service-icon {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+  .service-name {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    color: var(--fg);
+    margin-bottom: 0.6rem;
+  }
+  .service-desc {
+    font-size: 0.82rem;
+    color: var(--fg-dim);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ── About ── */
+  #about { justify-content: flex-end; align-items: center; }
+  .about-inner {
+    max-width: 38rem;
+    border-left: 1px solid rgba(102,156,53,0.3);
+    padding-left: 2.5rem;
+  }
+  .about-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    line-height: 0.9;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.02em;
+  }
+  .about-body {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--fg-dim);
+    font-weight: 300;
+    margin-bottom: 1.2rem;
+  }
+  .stat-row {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 1.8rem;
+    flex-wrap: wrap;
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    color: var(--accent2);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+  }
+
+  /* ── Work ── */
+  #work { flex-direction: column; justify-content: center; align-items: flex-start; }
+  .work-inner { max-width: 1000px; width: 100%; }
+  .work-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 9vw, 8rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    margin-bottom: 2.5rem;
+  }
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    max-width: 760px;
+  }
+  .work-item {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: rgba(102,156,53,0.04);
+    border: 1px solid rgba(102,156,53,0.12);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.2rem;
+  }
+  .work-item:hover { border-color: rgba(102,156,53,0.45); }
+  .work-item-thumb {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: top center;
+    opacity: 0.35;
+    transition: opacity 0.4s;
+  }
+  .work-item:hover .work-item-thumb { opacity: 0.55; }
+  .work-item-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.15;
+  }
+  .work-item-bg svg { width: 60%; height: 60%; }
+  .work-item-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(6,6,14,0.85) 0%, transparent 60%);
+  }
+  .work-item-num {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+    position: relative;
+    z-index: 1;
+  }
+  .work-item-name {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    position: relative;
+    z-index: 1;
+  }
+  .work-item-type {
+    font-size: 0.68rem;
+    color: var(--fg-dim);
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+    margin-top: 0.15rem;
+  }
+  .work-hover {
+    position: absolute;
+    inset: 0;
+    background: rgba(6,6,14,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s;
+    z-index: 2;
+    backdrop-filter: blur(3px);
+  }
+  .work-item:hover .work-hover { opacity: 1; }
+  .work-hover-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    padding: 0.6rem 1.4rem;
+    text-transform: uppercase;
+  }
+
+  /* ── Contact ── */
+  #contact { flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+  .contact-inner { max-width: 700px; width: 100%; }
+  .contact-title {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 13vw, 12rem);
+    line-height: 0.88;
+    letter-spacing: 0.02em;
+    margin-bottom: 2rem;
+  }
+  .contact-title em {
+    font-style: normal;
+    -webkit-text-stroke: 1.5px var(--fg);
+    color: transparent;
+  }
+  .contact-body {
+    font-size: 0.88rem;
+    color: var(--fg-dim);
+    line-height: 1.85;
+    max-width: 26rem;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+  }
+  .contact-cta { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+  .contact-meta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  .contact-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+  }
+  .contact-meta-item span { color: var(--accent); }
+  .contact-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  /* Form overlay */
+  .contact-form-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6,6,14,0.92);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .contact-form-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .contact-form-box {
+    width: 100%;
+    max-width: 480px;
+    padding: 2.5rem;
+    border: 1px solid rgba(102,156,53,0.25);
+    background: rgba(6,6,14,0.95);
+    position: relative;
+    transform: translateY(24px);
+    transition: transform 0.4s ease;
+  }
+  .contact-form-overlay.open .contact-form-box { transform: translateY(0); }
+  .form-close {
+    position: absolute;
+    top: 1.2rem; right: 1.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--fg-dim);
+    background: none;
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    text-transform: uppercase;
+  }
+  .form-close:hover { color: var(--fg); border-color: rgba(255,255,255,0.25); }
+  .form-label-header {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.8rem;
+  }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: left;
+  }
+  .contact-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .contact-field label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+  }
+  .contact-field input,
+  .contact-field textarea {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(102,156,53,0.2);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  .contact-field input:focus,
+  .contact-field textarea:focus { border-color: rgba(102,156,53,0.6); }
+  .contact-field textarea { min-height: 90px; }
+  .contact-success {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    padding: 2rem 1rem;
+    border: 1px solid rgba(217,235,55,0.25);
+    display: none;
+    text-align: center;
+  }
+  .contact-success.show { display: block; }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.85rem 2rem;
+    border: 1px solid var(--fg-dim);
+    color: var(--fg);
+    transition: all 0.3s;
+    cursor: pointer;
+    background: transparent;
+    display: inline-block;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.filled {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+  .btn.filled:hover {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: var(--bg);
+  }
+
+  /* ── Progress dots ── */
+  #progress {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: center;
+  }
+  .prog-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--fg-dim);
+    transition: all 0.4s;
+    cursor: pointer;
+    pointer-events: all;
+  }
+  .prog-dot.active {
+    background: var(--accent2);
+    height: 24px;
+    border-radius: 2px;
+  }
+
+  /* ── Noise overlay ── */
+  #noise {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    nav { padding: 1.5rem; }
+    .nav-links { display: none; }
+    .section { padding: 0 1.5rem; }
+    .services-grid { grid-template-columns: 1fr; }
+    .work-grid { grid-template-columns: repeat(2, 1fr); }
+    #progress { right: 1rem; }
+  }
+
+  /* ══════════════════════════════════════════
+     FEATURE 1 — CUSTOM CURSOR (Coding Theme)
+  ══════════════════════════════════════════ */
+  * { cursor: none !important; }
+
+  /* Main cursor: blinking terminal caret */
+  #cursor-dot {
+    position: fixed;
+    width: 2px;
+    height: 20px;
+    background: var(--accent2);
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    border-radius: 1px;
+    animation: caretBlink 1.1s step-end infinite;
+    box-shadow: 0 0 8px rgba(217,235,55,0.7), 0 0 20px rgba(217,235,55,0.25);
+    transition: height 0.15s, background 0.2s;
+  }
+  @keyframes caretBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+  body.cursor-hover #cursor-dot {
+    height: 28px;
+    background: var(--accent2);
+    animation: none;
+    opacity: 1;
+  }
+  body.cursor-click #cursor-dot { transform: translate(-50%,-50%) scaleY(0.5); opacity: 1; animation: none; }
+
+  /* Trailing ring: < /> brackets */
+  #cursor-ring {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: rgba(102,156,53,0.55);
+    white-space: nowrap;
+    transition: color 0.3s, font-size 0.3s, opacity 0.3s;
+    user-select: none;
+    text-shadow: 0 0 10px rgba(102,156,53,0.4);
+  }
+  #cursor-ring .cr-left  { display: inline-block; }
+  #cursor-ring .cr-right { display: inline-block; }
+  body.cursor-hover #cursor-ring {
+    color: rgba(217,235,55,0.7);
+    font-size: 16px;
+    text-shadow: 0 0 14px rgba(217,235,55,0.5);
+  }
+  body.cursor-click #cursor-ring { color: rgba(217,235,55,0.9); }
+
+  /* ══════════════════════════════════════════
+     FEATURE 2 — LOADING SCREEN
+  ══════════════════════════════════════════ */
+  #loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    transition: opacity 0.7s ease, visibility 0.7s ease;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .loader-logo {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 10vw, 8rem);
+    letter-spacing: 0.15em;
+    color: var(--fg);
+    overflow: hidden;
+    clip-path: inset(0 100% 0 0);
+    animation: loaderReveal 1.1s cubic-bezier(0.77,0,0.175,1) 0.3s forwards;
+  }
+  .loader-logo span { color: var(--accent2); }
+  @keyframes loaderReveal { to { clip-path: inset(0 0% 0 0); } }
+  .loader-sub {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 1.1s forwards;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .loader-bar-wrap {
+    width: min(320px, 60vw);
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.4s ease 1.0s forwards;
+  }
+  .loader-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    animation: loaderProgress 1.4s cubic-bezier(0.4,0,0.2,1) 0.5s forwards;
+  }
+  @keyframes loaderProgress { to { width: 100%; } }
+  .loader-counter {
+    position: absolute;
+    bottom: 2.5rem; right: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--fg-dim);
+    opacity: 0;
+    animation: fadeUp 0.4s ease 0.9s forwards;
+  }
+
+  /* ══════════════════════════════════════════
+     FEATURE 3 — AI CHAT WIDGET
+  ══════════════════════════════════════════ */
+  #ai-chat-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 0 rgba(102,156,53,0.4);
+    animation: chatPulse 2.5s ease infinite 3s;
+    transition: background 0.3s, transform 0.2s;
+  }
+  #ai-chat-btn:hover { background: var(--accent2); transform: scale(1.08); }
+  #ai-chat-btn svg { width: 22px; height: 22px; fill: var(--bg); transition: opacity 0.2s; }
+  #ai-chat-btn .close-icon { display: none; }
+  #ai-chat-btn.open .chat-icon { display: none; }
+  #ai-chat-btn.open .close-icon { display: block; }
+  @keyframes chatPulse {
+    0%  { box-shadow: 0 0 0 0 rgba(102,156,53,0.5); }
+    70% { box-shadow: 0 0 0 14px rgba(102,156,53,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(102,156,53,0); }
+  }
+
+  #ai-chat-panel {
+    position: fixed;
+    bottom: 5.5rem;
+    right: 2rem;
+    z-index: 999;
+    width: 360px;
+    max-width: calc(100vw - 2rem);
+    background: rgba(8,8,18,0.97);
+    border: 1px solid rgba(102,156,53,0.25);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    transform: translateY(20px) scale(0.97);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    max-height: 520px;
+  }
+  #ai-chat-panel.open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: all;
+  }
+  .chat-header {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid rgba(102,156,53,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-shrink: 0;
+  }
+  .chat-header-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: chatPulse 2s ease infinite;
+    flex-shrink: 0;
+  }
+  .chat-header-info { flex: 1; }
+  .chat-header-name {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--accent2);
+    text-transform: uppercase;
+  }
+  .chat-header-status {
+    font-size: 0.65rem;
+    color: var(--fg-dim);
+    margin-top: 0.1rem;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(102,156,53,0.2) transparent;
+  }
+  .chat-messages::-webkit-scrollbar { width: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(102,156,53,0.3); border-radius: 2px; }
+  .chat-msg {
+    max-width: 88%;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    padding: 0.65rem 0.9rem;
+    border-radius: 2px;
+    animation: msgSlide 0.25s ease;
+  }
+  @keyframes msgSlide { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  .chat-msg.ai {
+    background: rgba(102,156,53,0.08);
+    border: 1px solid rgba(102,156,53,0.15);
+    color: var(--fg);
+    align-self: flex-start;
+    border-radius: 2px 12px 12px 2px;
+  }
+  .chat-msg.user {
+    background: rgba(217,235,55,0.08);
+    border: 1px solid rgba(217,235,55,0.15);
+    color: var(--fg);
+    align-self: flex-end;
+    border-radius: 12px 2px 2px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  .chat-msg.typing {
+    background: rgba(102,156,53,0.06);
+    border: 1px solid rgba(102,156,53,0.1);
+    align-self: flex-start;
+    padding: 0.8rem 1.1rem;
+  }
+  .typing-dots { display: flex; gap: 4px; align-items: center; }
+  .typing-dots span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: dot 1.2s ease infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+  .chat-input-wrap {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid rgba(102,156,53,0.15);
+    flex-shrink: 0;
+  }
+  #chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0.9rem 1rem;
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    resize: none;
+  }
+  #chat-input::placeholder { color: var(--fg-dim); }
+  #chat-send {
+    background: transparent;
+    border: none;
+    border-left: 1px solid rgba(102,156,53,0.15);
+    padding: 0 1rem;
+    cursor: none;
+    color: var(--accent);
+    transition: color 0.2s, background 0.2s;
+  }
+  #chat-send:hover { color: var(--accent2); background: rgba(102,156,53,0.06); }
+  #chat-send svg { width: 16px; height: 16px; fill: currentColor; }
+  .chat-suggestions {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.5rem 1.2rem 0.8rem;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(102,156,53,0.08);
+  }
+  .chat-chip {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--fg-dim);
+    border: 1px solid rgba(102,156,53,0.2);
+    padding: 0.3rem 0.65rem;
+    border-radius: 100px;
+    cursor: none;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    background: transparent;
+  }
+  .chat-chip:hover { color: var(--accent2); border-color: rgba(217,235,55,0.4); }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"><span class="cr-left">&lt;</span><span class="cr-right">/&gt;</span></div>
+
+<!-- Loading Screen -->
+<div id="loader">
+  <div class="loader-logo">NEXORA<span>.</span></div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="loader-sub">Digital Engineering Studio</div>
+  <div class="loader-counter" id="loader-counter">000</div>
+</div>
+
+<canvas id="canvas-bg"></canvas>
+<div id="canvas-veil"></div>
+<div id="noise"></div>
+
+<nav>
+  <a class="nav-logo" href="#" onclick="scrollToSection(0);return false;">NEXORA<span>.</span></a>
+  <ul class="nav-links">
+    <li><a onclick="scrollToSection(1)">Services</a></li>
+    <li><a onclick="scrollToSection(2)">About</a></li>
+    <li><a onclick="scrollToSection(3)">Work</a></li>
+    <li><a onclick="scrollToSection(4)">Contact</a></li>
+  </ul>
+</nav>
+
+<div id="scroll-space"></div>
+
+<div id="sections">
+
+  <!-- HERO -->
+  <div class="section" id="hero" data-idx="0">
+    <div class="hero-eyebrow">Digital Engineering Studio · Est. 2024</div>
+    <div class="hero-title">
+      NEXORA
+      <span>LABS</span>
+    </div>
+    <p class="hero-sub">We build digital <em style="font-style:normal;color:var(--accent2)">systems</em> that scale — for ambitious companies and forward-thinking teams.</p>
+    <div class="hero-ctas">
+      <a class="btn filled" onclick="scrollToSection(3)">View Work</a>
+      <a class="btn" onclick="scrollToSection(4)">Start a Project</a>
+    </div>
+    <div class="scroll-hint">Scroll to explore</div>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="section" id="services" data-idx="1">
+    <div class="services-inner">
+      <div class="section-label">001 — Capabilities</div>
+      <h2 class="services-title">WHAT<br><span style="-webkit-text-stroke:1.5px var(--fg);color:transparent">WE DO</span></h2>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">◈</div>
+          <div class="service-name">WEB DEVELOPMENT</div>
+          <p class="service-desc">End-to-end engineering of fast, scalable web applications built on modern stacks.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">◎</div>
+          <div class="service-name">UI/UX DESIGN</div>
+          <p class="service-desc">Interfaces designed for clarity, conversion, and a premium user experience.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">◉</div>
+          <div class="service-name">AUTOMATION SYSTEMS</div>
+          <p class="service-desc">Custom workflows, APIs, and integrations that eliminate operational friction.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">◇</div>
+          <div class="service-name">PERFORMANCE OPS</div>
+          <p class="service-desc">Audits and improvements that push your product to its technical ceiling.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="section" id="about" data-idx="2">
+    <div class="about-inner">
+      <div class="section-label">002 — About</div>
+      <h2 class="about-title">ENGINEERS<br>WHO THINK<br>IN SYSTEMS.</h2>
+      <p class="about-body">
+        Nexora Labs is a boutique digital engineering studio. We partner with growth-stage startups and forward-thinking enterprises to design and build the products that define their next chapter.
+      </p>
+      <p class="about-body">
+        We care about craft — every interaction, every millisecond, every API response. Based in Accra, working worldwide.
+      </p>
+    </div>
+  </div>
+
+  <!-- WORK -->
+  <div class="section" id="work" data-idx="3">
+    <div class="work-inner">
+      <div class="section-label">003 — Selected Work</div>
+      <h2 class="work-title">FEATURED<br><span style="-webkit-text-stroke:1.5px var(--fg);color:transparent">PROJECTS</span></h2>
+      <div class="work-grid">
+
+        <div class="work-item" onclick="window.open('https://www.efuab.com','_blank','noopener')">
+          <div class="work-item-thumb" style="background-image:url('images/efuab-thumb.png')"></div>
+          <div class="work-item-overlay"></div>
+          <div class="work-hover"><div class="work-hover-label">Visit Site →</div></div>
+          <div class="work-item-num">001</div>
+          <div class="work-item-name">Efuab</div>
+          <div class="work-item-type">Beauty Studio · Accra, 2024</div>
+        </div>
+
+        <div class="work-item" onclick="window.open('https://www.brandmotionstudios.com','_blank','noopener')">
+          <div class="work-item-thumb" style="background-image:url('images/brandmotion-thumb.png')"></div>
+          <div class="work-item-overlay"></div>
+          <div class="work-hover"><div class="work-hover-label">Visit Site →</div></div>
+          <div class="work-item-num">002</div>
+          <div class="work-item-name">Brand Motion Studios</div>
+          <div class="work-item-type">Film Studio · Accra, 2024</div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="section" id="contact" data-idx="4">
+    <div class="contact-inner">
+      <div class="section-label">004 — Contact</div>
+      <div class="contact-title">LET'S<br><em>BUILD</em></div>
+      <p class="contact-body">Available for projects, collaborations, and technical partnerships. Response within 24 hours.</p>
+
+      <div class="contact-cta">
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+          <button class="btn filled" onclick="openContactForm()">Start a Project →</button>
+          <a class="btn" href="mailto:hello@nexoralabs.io">hello@nexoralabs.io</a>
+        </div>
+        <div class="contact-meta">
+          <div class="contact-meta-item"><span>◉</span> Open for Q3 2025</div>
+          <div class="contact-meta-item"><span>◎</span> Based in Accra</div>
+          <div class="contact-meta-item"><span>◈</span> Working worldwide</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Contact form overlay -->
+<div class="contact-form-overlay" id="contact-overlay" onclick="closeContactForm(event)">
+  <div class="contact-form-box">
+    <button class="form-close" onclick="closeContactForm()">esc ×</button>
+    <div class="form-label-header">005 — Start a Project</div>
+
+    <form class="contact-form" id="contact-form" onsubmit="handleContactSubmit(event)">
+      <div class="contact-field">
+        <label>Name</label>
+        <input type="text" placeholder="Your name" required>
+      </div>
+      <div class="contact-field">
+        <label>Email</label>
+        <input type="email" placeholder="your@email.com" required>
+      </div>
+      <div class="contact-field">
+        <label>Project</label>
+        <textarea placeholder="Tell us about your project, goals, and timeline..."></textarea>
+      </div>
+      <button type="submit" class="btn filled" style="width:100%;text-align:center;margin-top:0.5rem">Send Request →</button>
+    </form>
+
+    <div class="contact-success" id="contact-success">
+      &gt; request submitted successfully_<br>
+      <span style="color:var(--fg-dim);font-size:0.75em">We'll be in touch within 24 hours.</span>
+    </div>
+  </div>
+</div>
+
+<!-- AI Chat Widget -->
+<button id="ai-chat-btn" onclick="toggleChat()" aria-label="Open AI assistant">
+  <svg class="chat-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.06L2 22l4.94-1.37A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+  <svg class="close-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+</button>
+
+<div id="ai-chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-dot"></div>
+    <div class="chat-header-info">
+      <div class="chat-header-name">Nexora AI</div>
+      <div class="chat-header-status">Ask me anything about our work</div>
+    </div>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-msg ai">Hey 👋 I'm Nexora's AI assistant. Ask me about our services, past work, pricing, or anything else.</div>
+  </div>
+  <div class="chat-suggestions" id="chat-suggestions">
+    <button class="chat-chip" onclick="sendChip(this)">What do you build?</button>
+    <button class="chat-chip" onclick="sendChip(this)">Pricing?</button>
+    <button class="chat-chip" onclick="sendChip(this)">Past projects</button>
+    <button class="chat-chip" onclick="sendChip(this)">How to start?</button>
+  </div>
+  <div class="chat-input-wrap">
+    <textarea id="chat-input" rows="1" placeholder="Message Nexora AI…" onkeydown="chatKeydown(event)"></textarea>
+    <button id="chat-send" onclick="sendChatMessage()" aria-label="Send">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Progress dots -->
+<div id="progress">
+  <div class="prog-dot active" onclick="scrollToSection(0)"></div>
+  <div class="prog-dot" onclick="scrollToSection(1)"></div>
+  <div class="prog-dot" onclick="scrollToSection(2)"></div>
+  <div class="prog-dot" onclick="scrollToSection(3)"></div>
+  <div class="prog-dot" onclick="scrollToSection(4)"></div>
+</div>
+
+<script>
+// ─── Three.js Scene ──────────────────────────────────────────────────────────
+const canvas = document.getElementById('canvas-bg');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x06060e, 1);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x06060e, 0.03);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 0, 18);
+camera.lookAt(0, 0, 0);
+
+// Code token sprites
+const CODE_TOKENS = [
+  { text: '<div>',           color: '#669c35', size: 1.8 },
+  { text: '</div>',          color: '#669c35', size: 1.8 },
+  { text: 'const x = () =>', color: '#d9eb37', size: 1.4 },
+  { text: '{ }',             color: '#d8d8ec', size: 2.4 },
+  { text: '<html>',          color: '#669c35', size: 2.0 },
+  { text: '</body>',         color: '#669c35', size: 1.6 },
+  { text: 'async/await',     color: '#d9eb37', size: 1.5 },
+  { text: 'npm install',     color: '#aaffcc', size: 1.4 },
+  { text: '.class {}',       color: '#d8d8ec', size: 1.6 },
+  { text: '#id { }',         color: '#669c35', size: 1.5 },
+  { text: 'return (',        color: '#d9eb37', size: 1.7 },
+  { text: 'function()',      color: '#aaffcc', size: 1.6 },
+  { text: '[ ]',             color: '#d8d8ec', size: 2.2 },
+  { text: '=>',              color: '#d9eb37', size: 2.8 },
+  { text: '<script>',        color: '#669c35', size: 1.8 },
+  { text: '@keyframes',      color: '#aaffcc', size: 1.4 },
+  { text: 'display: flex',   color: '#d8d8ec', size: 1.4 },
+  { text: '// TODO',         color: '#7a7a98', size: 1.6 },
+  { text: '&&',              color: '#d9eb37', size: 2.6 },
+  { text: 'import { }',      color: '#669c35', size: 1.5 },
+  { text: 'git commit',      color: '#aaffcc', size: 1.4 },
+  { text: 'useState()',      color: '#d9eb37', size: 1.5 },
+  { text: 'z-index: 9999',   color: '#7a7a98', size: 1.3 },
+  { text: 'nexora.build()',  color: '#d9eb37', size: 1.6 },
+];
+
+const TOKEN_POSITIONS = [
+  [-4, 1, 10], [5, -2, 8], [0, 3, 12], [-7, -3, 6], [3, 5, 9],
+  [6, 4, 2], [-8, 1, 0], [2, -5, 4], [-3, 6, 2], [9, -1, 1],
+  [-5, -4, -8], [3, 2, -6], [-1, -6, -4], [7, 3, -10], [-9, 5, -12],
+  [0, -2, -15], [3, 7, 6], [-6, 4, -2], [8, -5, -4], [-3, -7, -10],
+  [4, -1, 5], [-2, 3, -2], [6, -6, -7], [-4, -2, -14],
+];
+
+function makeCodeSprite(token) {
+  const { text, color, size } = token;
+  const c2d = document.createElement('canvas');
+  c2d.width = 512; c2d.height = 112;
+  const ctx = c2d.getContext('2d');
+
+  ctx.clearRect(0, 0, 512, 112);
+  ctx.fillStyle = 'rgba(6,6,14,0.72)';
+  roundRect(ctx, 0, 0, 512, 112, 14); ctx.fill();
+
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.globalAlpha = 0.5;
+  roundRect(ctx, 1, 1, 510, 110, 14); ctx.stroke(); ctx.globalAlpha = 1;
+
+  ctx.font = "52px 'Courier New', monospace";
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  ctx.fillText(text, 256, 56);
+
+  const tex = new THREE.CanvasTexture(c2d);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.45, depthWrite: false, side: THREE.DoubleSide });
+  const geo = new THREE.PlaneGeometry(size * (512 / 112), size);
+  return new THREE.Mesh(geo, mat);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+const objects = [];
+CODE_TOKENS.forEach((token, i) => {
+  const pos = TOKEN_POSITIONS[i % TOKEN_POSITIONS.length];
+  const sprite = makeCodeSprite(token);
+  sprite.position.set(pos[0], pos[1], pos[2]);
+  sprite.rotation.set(
+    (Math.random() - 0.5) * 0.4,
+    (Math.random() - 0.5) * 0.6,
+    (Math.random() - 0.5) * 0.2
+  );
+  sprite.userData.speed = 0.15 + Math.random() * 0.25;
+  sprite.userData.floatOffset = Math.random() * Math.PI * 2;
+  scene.add(sprite);
+  objects.push(sprite);
+});
+
+// Particles
+const particleCount = 700;
+const positions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  positions[i * 3]     = (Math.random() - 0.5) * 70;
+  positions[i * 3 + 1] = (Math.random() - 0.5) * 70;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 70;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const pMat = new THREE.PointsMaterial({ color: 0xd8d8ec, size: 0.06, transparent: true, opacity: 0.4 });
+scene.add(new THREE.Points(pGeo, pMat));
+
+// Grid
+const grid = new THREE.GridHelper(70, 50, 0x1a2a10, 0x0d1508);
+grid.position.y = -10;
+grid.material.transparent = true;
+grid.material.opacity = 0.5;
+scene.add(grid);
+
+// Camera path (extended for 5 sections)
+const camPath = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 0, 18),
+  new THREE.Vector3(-3, 2, 10),
+  new THREE.Vector3(4, -1, 4),
+  new THREE.Vector3(-2, 1, -4),
+  new THREE.Vector3(0, 0, -12),
+]);
+const lookPath = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 0, 0),
+  new THREE.Vector3(-1.5, 1, 0),
+  new THREE.Vector3(2, -1, -2),
+  new THREE.Vector3(-1, 0, -6),
+  new THREE.Vector3(0, 0, -18),
+]);
+
+// ─── Scroll logic ────────────────────────────────────────────────────────────
+const sections = document.querySelectorAll('.section');
+const progDots = document.querySelectorAll('.prog-dot');
+const sectionCount = sections.length;
+let currentSection = 0;
+let scrollProgress = 0;
+let targetProgress = 0;
+
+function getSectionIndex(p) {
+  return Math.min(Math.floor(p * sectionCount), sectionCount - 1);
+}
+
+function updateSections(p) {
+  const idx = getSectionIndex(p);
+  if (idx !== currentSection) {
+    currentSection = idx;
+    sections.forEach((s, i) => s.classList.toggle('active', i === idx));
+    progDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+}
+
+sections[0].classList.add('active');
+
+window.addEventListener('scroll', () => {
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  targetProgress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+});
+
+function scrollToSection(idx) {
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  const target = (idx / (sectionCount - 1)) * maxScroll;
+  window.scrollTo({ top: target, behavior: 'smooth' });
+}
+window.scrollToSection = scrollToSection;
+
+// ─── Animation loop ──────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  scrollProgress += (targetProgress - scrollProgress) * 0.05;
+
+  const camPos = camPath.getPoint(Math.min(scrollProgress, 0.999));
+  const lookAt = lookPath.getPoint(Math.min(scrollProgress, 0.999));
+  camera.position.lerp(camPos, 0.08);
+  camera.lookAt(lookAt);
+
+  objects.forEach(obj => {
+    obj.position.y += Math.sin(t * obj.userData.speed + obj.userData.floatOffset) * 0.002;
+    obj.rotation.z = Math.sin(t * 0.3 + obj.userData.floatOffset) * 0.06;
+  });
+
+  updateSections(scrollProgress);
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── Contact form overlay ────────────────────────────────────────────────────
+function openContactForm() {
+  document.getElementById('contact-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeContactForm(e) {
+  if (e && e.target !== document.getElementById('contact-overlay')) return;
+  document.getElementById('contact-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('contact-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+function handleContactSubmit(e) {
+  e.preventDefault();
+  document.getElementById('contact-form').style.display = 'none';
+  document.getElementById('contact-success').classList.add('show');
+}
+
+// ─── FEATURE 1: Custom Cursor (Coding Theme) ──────────────────────────────
+const dot  = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mouseX = -200, mouseY = -200;
+let ringX  = -200, ringY  = -200;
+
+// Caret follows mouse exactly
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  dot.style.left = mouseX + 'px';
+  dot.style.top  = mouseY + 'px';
+});
+document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
+document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
+
+// Hover state on interactive elements
+const hoverTargets = 'a, button, [onclick], .service-card, .work-item, .prog-dot, .chat-chip, #chat-send, #ai-chat-btn, .btn, .nav-links a, input, textarea';
+document.querySelectorAll(hoverTargets).forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+// Brackets lag behind with smooth lerp
+(function bracketLoop() {
+  ringX += (mouseX - ringX) * 0.09;
+  ringY += (mouseY - ringY) * 0.09;
+  ring.style.left = ringX + 'px';
+  ring.style.top  = ringY + 'px';
+  requestAnimationFrame(bracketLoop);
+})();
+
+// ─── FEATURE 2: Loading Screen ────────────────────────────────────────────
+(function() {
+  const loader  = document.getElementById('loader');
+  const counter = document.getElementById('loader-counter');
+  let count = 0;
+  const interval = setInterval(() => {
+    count = Math.min(count + Math.floor(Math.random() * 12) + 4, 100);
+    counter.textContent = String(count).padStart(3, '0');
+    if (count >= 100) clearInterval(interval);
+  }, 40);
+  // Dismiss after animations complete
+  setTimeout(() => {
+    loader.classList.add('hidden');
+  }, 2400);
+})();
+
+// ─── FEATURE 3: AI Chat Widget ────────────────────────────────────────────
+const NEXORA_CONTEXT = `You are the AI assistant for Nexora Labs, a boutique digital engineering studio based in Accra, Ghana.
+
+About Nexora Labs:
+- We build digital systems that scale for ambitious companies and forward-thinking teams
+- Services: Web Development, UI/UX Design, Automation Systems, Performance Ops
+- 40+ projects shipped, 4 years of studio experience, 98% client retention
+- Based in Accra, working worldwide
+- Currently open for Q3 2025 projects
+- Contact: hello@nexoralabs.io
+- Past clients include Efuab (beauty studio) and Brand Motion Studios (film studio)
+
+Pricing: Project-based. Web projects typically start from $3,000. Custom scopes on request.
+Typical timeline: 4–12 weeks depending on scope.
+
+Be helpful, concise, and on-brand: confident, technical, no fluff. Use short paragraphs. Don't use bullet lists unless really needed.`;
+
+const chatHistory = [];
+let chatOpen = false;
+let isSending = false;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('ai-chat-btn').classList.toggle('open', chatOpen);
+  document.getElementById('ai-chat-panel').classList.toggle('open', chatOpen);
+  if (chatOpen) setTimeout(() => document.getElementById('chat-input').focus(), 350);
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+}
+
+function sendChip(btn) {
+  document.getElementById('chat-suggestions').style.display = 'none';
+  document.getElementById('chat-input').value = btn.textContent;
+  sendChatMessage();
+}
+
+async function sendChatMessage() {
+  if (isSending) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  isSending = true;
+
+  appendMsg('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  const typingEl = appendTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: NEXORA_CONTEXT,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.find(b => b.type === 'text')?.text || 'Sorry, I couldn\'t get a response. Try again!';
+    typingEl.remove();
+    appendMsg('ai', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch {
+    typingEl.remove();
+    appendMsg('ai', 'Connection issue — please try again in a moment.');
+  }
+  isSending = false;
+}
+
+function appendMsg(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const el = document.createElement('div');
+  el.className = 'chat-msg ' + role;
+  el.textContent = text;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  // Re-attach hover for cursor
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  return el;
+}
+
+function appendTyping() {
+  const msgs = document.getElementById('chat-messages');
+  const el = document.createElement('div');
+  el.className = 'chat-msg typing';
+  el.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+</script>
+</body>
+</html>
