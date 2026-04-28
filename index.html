@@ -1042,6 +1042,10 @@ const lookPath = new THREE.CatmullRomCurve3([
   new THREE.Vector3(0, 0, -18),
 ]);
 
+// ─── Always start at top ─────────────────────────────────────────────────────
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo({ top: 0, behavior: 'instant' });
+
 // ─── Scroll logic ────────────────────────────────────────────────────────────
 const sections = document.querySelectorAll('.section');
 const progDots = document.querySelectorAll('.prog-dot');
