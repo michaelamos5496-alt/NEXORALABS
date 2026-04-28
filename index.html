@@ -723,9 +723,29 @@
     animation: fadeUp 0.4s ease 0.9s forwards;
   }
 
-  /* AI chat removed */
-  #ai-chat-btn-placeholder {
-  display: none;
+  /* ── WhatsApp Float Button ── */
+  #wa-float {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: #25D366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 24px rgba(37,211,102,0.35);
+    animation: waPulse 2.5s ease infinite;
+    transition: transform 0.2s, background 0.2s;
+    cursor: none;
+  }
+  #wa-float:hover { transform: scale(1.1); background: #20bd5a; }
+  #wa-float svg { width: 28px; height: 28px; fill: #fff; }
+  @keyframes waPulse {
+    0%   { box-shadow: 0 4px 24px rgba(37,211,102,0.35), 0 0 0 0 rgba(37,211,102,0.4); }
+    70%  { box-shadow: 0 4px 24px rgba(37,211,102,0.35), 0 0 0 14px rgba(37,211,102,0); }
+    100% { box-shadow: 0 4px 24px rgba(37,211,102,0.35), 0 0 0 0 rgba(37,211,102,0); }
   }
 </style>
 </head>
@@ -855,56 +875,18 @@
       <div class="section-label">004 — Contact</div>
       <div class="contact-title">LET'S<br><em>BUILD</em></div>
       <p class="contact-body">Available for projects, collaborations, and technical partnerships. Response within 24 hours.</p>
-
       <div class="contact-cta">
-        <button class="btn filled" onclick="openContactForm()">Start a Project →</button>
+        <a class="btn filled" href="https://wa.me/233541479680?text=Hi%20Cod3v!%20I%27d%20like%20to%20start%20a%20project." target="_blank" rel="noopener">Start a Project →</a>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- Contact form overlay -->
-<div class="contact-form-overlay" id="contact-overlay" onclick="closeContactForm(event)">
-  <div class="contact-form-box">
-    <button class="form-close" onclick="closeContactForm()">esc ×</button>
-    <div class="form-label-header">005 — Start a Project</div>
-
-    <form class="contact-form" id="contact-form" onsubmit="handleContactSubmit(event)">
-      <div class="contact-field">
-        <label>Name</label>
-        <input type="text" id="f-name" placeholder="Your name" required>
-      </div>
-      <div class="contact-field">
-        <label>Email</label>
-        <input type="email" id="f-email" placeholder="your@email.com" required>
-      </div>
-      <div class="contact-field">
-        <label>Country</label>
-        <select id="f-country" onchange="onCountryChange()" required style="background:rgba(255,255,255,0.03);border:1px solid rgba(102,156,53,0.2);color:var(--fg);font-family:var(--font-body);font-size:0.85rem;padding:0.75rem 1rem;outline:none;transition:border-color 0.2s;width:100%;appearance:none;cursor:none;">
-          <option value="" disabled selected style="background:#06060e;">Select your country…</option>
-        </select>
-      </div>
-      <div class="contact-field">
-        <label>Phone Number</label>
-        <div style="display:flex;gap:0;">
-          <input type="text" id="f-code" readonly placeholder="+1" style="width:72px;background:rgba(102,156,53,0.07);border:1px solid rgba(102,156,53,0.2);border-right:none;color:var(--accent2);font-family:var(--font-mono);font-size:0.85rem;padding:0.75rem 0.75rem;outline:none;text-align:center;flex-shrink:0;">
-          <input type="tel" id="f-phone" placeholder="Your phone number" required style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(102,156,53,0.2);color:var(--fg);font-family:var(--font-body);font-size:0.85rem;padding:0.75rem 1rem;outline:none;transition:border-color 0.2s;">
-        </div>
-      </div>
-      <div class="contact-field">
-        <label>Project</label>
-        <textarea id="f-project" placeholder="Tell us about your project, goals, and timeline..."></textarea>
-      </div>
-      <button type="submit" id="f-submit" class="btn filled" style="width:100%;text-align:center;margin-top:0.5rem">Send Request →</button>
-    </form>
-
-    <div class="contact-success" id="contact-success">
-      &gt; request submitted successfully_<br>
-      <span style="color:var(--fg-dim);font-size:0.75em">We'll be in touch within 24 hours.</span>
-    </div>
-  </div>
-</div>
+<!-- Floating WhatsApp Button -->
+<a id="wa-float" href="https://wa.me/233541479680?text=Hi%20Cod3v!%20I%27d%20like%20to%20start%20a%20project." target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
 
 <!-- Progress dots -->
 <div id="progress">
@@ -1139,113 +1121,8 @@ document.addEventListener('keydown', (e) => {
     document.body.style.overflow = '';
   }
 });
-// ─── CallMeBot config ─────────────────────────────────────────────────────────
-// To activate: message +34 644 59 91 16 on WhatsApp with "I allow callmebot to send me messages"
-// Then replace YOUR_API_KEY below with the key you receive back.
-const CALLMEBOT_PHONE  = '233541479680';
-const CALLMEBOT_APIKEY = 'YOUR_API_KEY'; // ← paste your CallMeBot API key here
-
-// ─── Country data ─────────────────────────────────────────────────────────────
-const COUNTRIES = [
-  {n:'Afghanistan',c:'+93'},{n:'Albania',c:'+355'},{n:'Algeria',c:'+213'},{n:'Andorra',c:'+376'},
-  {n:'Angola',c:'+244'},{n:'Argentina',c:'+54'},{n:'Armenia',c:'+374'},{n:'Australia',c:'+61'},
-  {n:'Austria',c:'+43'},{n:'Azerbaijan',c:'+994'},{n:'Bahamas',c:'+1'},{n:'Bahrain',c:'+973'},
-  {n:'Bangladesh',c:'+880'},{n:'Belarus',c:'+375'},{n:'Belgium',c:'+32'},{n:'Belize',c:'+501'},
-  {n:'Benin',c:'+229'},{n:'Bhutan',c:'+975'},{n:'Bolivia',c:'+591'},{n:'Bosnia',c:'+387'},
-  {n:'Botswana',c:'+267'},{n:'Brazil',c:'+55'},{n:'Brunei',c:'+673'},{n:'Bulgaria',c:'+359'},
-  {n:'Burkina Faso',c:'+226'},{n:'Burundi',c:'+257'},{n:'Cambodia',c:'+855'},{n:'Cameroon',c:'+237'},
-  {n:'Canada',c:'+1'},{n:'Cape Verde',c:'+238'},{n:'Chad',c:'+235'},{n:'Chile',c:'+56'},
-  {n:'China',c:'+86'},{n:'Colombia',c:'+57'},{n:'Congo',c:'+242'},{n:'Costa Rica',c:'+506'},
-  {n:'Croatia',c:'+385'},{n:'Cuba',c:'+53'},{n:'Cyprus',c:'+357'},{n:'Czech Republic',c:'+420'},
-  {n:'Denmark',c:'+45'},{n:'Djibouti',c:'+253'},{n:'Dominican Republic',c:'+1'},{n:'Ecuador',c:'+593'},
-  {n:'Egypt',c:'+20'},{n:'El Salvador',c:'+503'},{n:'Estonia',c:'+372'},{n:'Eswatini',c:'+268'},
-  {n:'Ethiopia',c:'+251'},{n:'Fiji',c:'+679'},{n:'Finland',c:'+358'},{n:'France',c:'+33'},
-  {n:'Gabon',c:'+241'},{n:'Gambia',c:'+220'},{n:'Georgia',c:'+995'},{n:'Germany',c:'+49'},
-  {n:'Ghana',c:'+233'},{n:'Greece',c:'+30'},{n:'Guatemala',c:'+502'},{n:'Guinea',c:'+224'},
-  {n:'Haiti',c:'+509'},{n:'Honduras',c:'+504'},{n:'Hungary',c:'+36'},{n:'Iceland',c:'+354'},
-  {n:'India',c:'+91'},{n:'Indonesia',c:'+62'},{n:'Iran',c:'+98'},{n:'Iraq',c:'+964'},
-  {n:'Ireland',c:'+353'},{n:'Israel',c:'+972'},{n:'Italy',c:'+39'},{n:'Jamaica',c:'+1'},
-  {n:'Japan',c:'+81'},{n:'Jordan',c:'+962'},{n:'Kazakhstan',c:'+7'},{n:'Kenya',c:'+254'},
-  {n:'Kuwait',c:'+965'},{n:'Kyrgyzstan',c:'+996'},{n:'Laos',c:'+856'},{n:'Latvia',c:'+371'},
-  {n:'Lebanon',c:'+961'},{n:'Lesotho',c:'+266'},{n:'Liberia',c:'+231'},{n:'Libya',c:'+218'},
-  {n:'Lithuania',c:'+370'},{n:'Luxembourg',c:'+352'},{n:'Madagascar',c:'+261'},{n:'Malawi',c:'+265'},
-  {n:'Malaysia',c:'+60'},{n:'Maldives',c:'+960'},{n:'Mali',c:'+223'},{n:'Malta',c:'+356'},
-  {n:'Mauritania',c:'+222'},{n:'Mauritius',c:'+230'},{n:'Mexico',c:'+52'},{n:'Moldova',c:'+373'},
-  {n:'Monaco',c:'+377'},{n:'Mongolia',c:'+976'},{n:'Montenegro',c:'+382'},{n:'Morocco',c:'+212'},
-  {n:'Mozambique',c:'+258'},{n:'Myanmar',c:'+95'},{n:'Namibia',c:'+264'},{n:'Nepal',c:'+977'},
-  {n:'Netherlands',c:'+31'},{n:'New Zealand',c:'+64'},{n:'Nicaragua',c:'+505'},{n:'Niger',c:'+227'},
-  {n:'Nigeria',c:'+234'},{n:'North Korea',c:'+850'},{n:'North Macedonia',c:'+389'},{n:'Norway',c:'+47'},
-  {n:'Oman',c:'+968'},{n:'Pakistan',c:'+92'},{n:'Panama',c:'+507'},{n:'Papua New Guinea',c:'+675'},
-  {n:'Paraguay',c:'+595'},{n:'Peru',c:'+51'},{n:'Philippines',c:'+63'},{n:'Poland',c:'+48'},
-  {n:'Portugal',c:'+351'},{n:'Qatar',c:'+974'},{n:'Romania',c:'+40'},{n:'Russia',c:'+7'},
-  {n:'Rwanda',c:'+250'},{n:'Saudi Arabia',c:'+966'},{n:'Senegal',c:'+221'},{n:'Serbia',c:'+381'},
-  {n:'Sierra Leone',c:'+232'},{n:'Singapore',c:'+65'},{n:'Slovakia',c:'+421'},{n:'Slovenia',c:'+386'},
-  {n:'Somalia',c:'+252'},{n:'South Africa',c:'+27'},{n:'South Korea',c:'+82'},{n:'South Sudan',c:'+211'},
-  {n:'Spain',c:'+34'},{n:'Sri Lanka',c:'+94'},{n:'Sudan',c:'+249'},{n:'Sweden',c:'+46'},
-  {n:'Switzerland',c:'+41'},{n:'Syria',c:'+963'},{n:'Taiwan',c:'+886'},{n:'Tajikistan',c:'+992'},
-  {n:'Tanzania',c:'+255'},{n:'Thailand',c:'+66'},{n:'Togo',c:'+228'},{n:'Trinidad and Tobago',c:'+1'},
-  {n:'Tunisia',c:'+216'},{n:'Turkey',c:'+90'},{n:'Turkmenistan',c:'+993'},{n:'Uganda',c:'+256'},
-  {n:'Ukraine',c:'+380'},{n:'United Arab Emirates',c:'+971'},{n:'United Kingdom',c:'+44'},
-  {n:'United States',c:'+1'},{n:'Uruguay',c:'+598'},{n:'Uzbekistan',c:'+998'},{n:'Venezuela',c:'+58'},
-  {n:'Vietnam',c:'+84'},{n:'Yemen',c:'+967'},{n:'Zambia',c:'+260'},{n:'Zimbabwe',c:'+263'}
-];
-
-// Populate country dropdown
-(function() {
-  const sel = document.getElementById('f-country');
-  COUNTRIES.forEach(ct => {
-    const opt = document.createElement('option');
-    opt.value = ct.c;
-    opt.textContent = ct.n + '  ' + ct.c;
-    opt.style.background = '#06060e';
-    sel.appendChild(opt);
-  });
-  // Auto-detect country by timezone (best-effort)
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz.includes('Accra') || tz.includes('Africa/Accra')) {
-      sel.value = '+233'; document.getElementById('f-code').value = '+233';
-    }
-  } catch(e) {}
-})();
-
-function onCountryChange() {
-  const sel = document.getElementById('f-country');
-  document.getElementById('f-code').value = sel.value || '';
-}
-
-// Focus styles for new fields
-document.getElementById('f-country').addEventListener('focus', function(){ this.style.borderColor='rgba(102,156,53,0.6)'; });
-document.getElementById('f-country').addEventListener('blur',  function(){ this.style.borderColor='rgba(102,156,53,0.2)'; });
-document.getElementById('f-phone').addEventListener('focus',   function(){ this.style.borderColor='rgba(102,156,53,0.6)'; });
-document.getElementById('f-phone').addEventListener('blur',    function(){ this.style.borderColor='rgba(102,156,53,0.2)'; });
-
-async function handleContactSubmit(e) {
-  e.preventDefault();
-  const btn = document.getElementById('f-submit');
-  btn.textContent = 'Sending…';
-  btn.disabled = true;
-
-  const name    = document.getElementById('f-name').value.trim();
-  const email   = document.getElementById('f-email').value.trim();
-  const code    = document.getElementById('f-code').value.trim();
-  const phone   = document.getElementById('f-phone').value.trim();
-  const project = document.getElementById('f-project').value.trim();
-  const country = document.getElementById('f-country').options[document.getElementById('f-country').selectedIndex]?.text.split('  ')[0] || '';
-
-  const msg = `🚀 New Project Request - Cod3v\n\nName: ${name}\nEmail: ${email}\nCountry: ${country}\nPhone: ${code} ${phone}\n\nProject:\n${project}`;
-
-  try {
-    await fetch(
-      `https://api.callmebot.com/whatsapp.php?phone=${CALLMEBOT_PHONE}&text=${encodeURIComponent(msg)}&apikey=${CALLMEBOT_APIKEY}`,
-      { method: 'GET', mode: 'no-cors' }
-    );
-  } catch(err) { /* no-cors won't throw, fire-and-forget */ }
-
-  // Show success regardless (no-cors means we can't read response)
-  document.getElementById('contact-form').style.display = 'none';
-  document.getElementById('contact-success').classList.add('show');
-}
+function openContactForm() {}
+function closeContactForm() {}
 
 // ─── FEATURE 1: Custom Cursor (Coding Theme) ──────────────────────────────
 const dot  = document.getElementById('cursor-dot');
